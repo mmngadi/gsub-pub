@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const GsubVersion = "1.1.0" // Incremented for atomic-write functionality
+const GsubVersion = "1.0.0" // Incremented for atomic-write functionality
 
 func main() {
 	// 1. Setup Flags
