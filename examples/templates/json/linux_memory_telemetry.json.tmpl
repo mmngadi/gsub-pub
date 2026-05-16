@@ -1,0 +1,12 @@
+{
+  "host": "{{$env.HOSTNAME || 'unknown-host'}}",
+  "resource": "linux_memory_telemetry",
+  "metrics": {
+    "mem_total_kb": {{$file.MemTotal || '0'}},
+    "mem_free_kb": {{$file.MemFree || '0'}},
+    "mem_available_kb": {{$file.MemAvailable || '0'}},
+    "buffers_kb": {{$file.Buffers || '0'}},
+    "cached_kb": {{$file.Cached || '0'}},
+    "active_kb": {{$file.Active || '0'}}
+  }
+}

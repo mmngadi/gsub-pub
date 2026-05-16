@@ -1,0 +1,10 @@
+{
+    "host":"{{USER}}",
+    "resource":"amd_zen_thermals",
+    "status":"{{$file.STATUS || 'operational'}}",
+    "metrics":
+        {
+            "control_peak_celsius": "{{$file.Tctl}}",
+            "core_die_celsius": "{{$file.Tccd}}"
+        }
+}
