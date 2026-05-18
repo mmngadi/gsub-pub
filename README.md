@@ -113,7 +113,7 @@ gsub -e -f vars.env < payload.json.tmpl
 gsub -e -f vars.env -t payload.json.tmpl
 
 # Note: If USER is declared inside vars.env, the live environment 
-# assignment 'export USER=alpine' will safely override it at runtime.
+# variable will safely override it at runtime.
 
 ```
 
