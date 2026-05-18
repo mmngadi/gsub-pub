@@ -38,7 +38,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: gsub [OPTION]...\n")
 		fmt.Fprintf(os.Stderr, "Substitute {{PLACEHOLDERS}} safely using environment variables or configurations.\n\n")
 		fmt.Fprintf(os.Stderr, "Example: echo \"Hello {{USER}}\" | gsub -e\n")
-		fmt.Fprintf(os.Stderr, "         gmon | gsub -t config.json.tmpl -f -\n\n")
+		fmt.Fprintf(os.Stderr, "         echo \"USER=alpine\" | gsub -t config.json.tmpl -f\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExit status is 0 if substitution succeeds, 1 if variables are completely missing and have no fallback default.\n")
