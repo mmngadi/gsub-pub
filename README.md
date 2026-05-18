@@ -106,7 +106,6 @@ Combine system environments alongside file defaults.
 > **Precedence Rule:** Un-namespaced system environment flags (`-e`) permanently take priority over values read inside static asset scopes (`-f`). Missing variables fall back to the file context cleanly.
 
 ```bash
-export USER=alpine
 export TIMESTAMP=$(date +%s)
 
 gsub -e -f vars.env < payload.json.tmpl
