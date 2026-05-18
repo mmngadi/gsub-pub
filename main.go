@@ -96,6 +96,8 @@ func main() {
 	} else {
 		// MODE 1: Static Configuration One-Shot Mode
 		fileVars := make(map[string]string)
+
+		// Layer A: Load static variables from physical file if provided
 		if *envFilePath != "" && *envFilePath != "-" {
 			file, err := os.Open(*envFilePath)
 			if err != nil {
@@ -105,12 +107,29 @@ func main() {
 			vars, err := parseEnvReader(file)
 			file.Close()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%sstate=failed reason=parse_error message=\"%v\"\n", activePrefix, err)
+				fmt.Fprintf(os.Stderr, "%sstate=failed reason=parse_error message=\"file: %v\"\n", activePrefix, err)
 				os.Exit(1)
 			}
 			fileVars = vars
 		}
 
+		// Layer B: Ingest STDIN as dynamic variables if a template file path is explicitly targeted
+		if *templatePath != "" {
+			// Ensure STDIN is actually hooked to a pipe or file redirection to protect against terminal lockups
+			if (stat.Mode() & os.ModeCharDevice) == 0 {
+				stdinVars, err := parseEnvReader(os.Stdin)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%sstate=failed reason=parse_error message=\"stdin: %v\"\n", activePrefix, err)
+					os.Exit(1)
+				}
+				// Merge inputs; standard input key definitions take precedence over underlying configuration files
+				for k, v := range stdinVars {
+					fileVars[k] = v
+				}
+			}
+		}
+
+		// Layer C: Bind target template parsing layout stream
 		var templateReader io.Reader
 		if *templatePath != "" {
 			file, err := os.Open(*templatePath)
@@ -162,37 +181,37 @@ func processLine(line string, fileVars map[string]string, useEnv bool, missingVa
 		hasDefault := submatches[3] != "" || strings.Contains(match, "||")
 		defaultValue := submatches[3]
 
-		var val string
-		var exists bool
+			var val string
+			var exists bool
 
-		switch {
-		case strings.HasPrefix(fullKey, "$env."):
-			realKey := strings.TrimPrefix(fullKey, "$env.")
-			val, exists = os.LookupEnv(realKey)
+			switch {
+				case strings.HasPrefix(fullKey, "$env."):
+					realKey := strings.TrimPrefix(fullKey, "$env.")
+					val, exists = os.LookupEnv(realKey)
 
-		case strings.HasPrefix(fullKey, "$file.") || strings.HasPrefix(fullKey, "$input."):
-			realKey := fullKey[strings.Index(fullKey, ".")+1:]
-			val, exists = fileVars[realKey]
+				case strings.HasPrefix(fullKey, "$file.") || strings.HasPrefix(fullKey, "$input."):
+					realKey := fullKey[strings.Index(fullKey, ".")+1:]
+					val, exists = fileVars[realKey]
 
-		default:
-			// Un-namespaced Cascade Logic: Environment takes priority if explicit flag is provided
-			if useEnv {
-				val, exists = os.LookupEnv(fullKey)
+				default:
+					// Un-namespaced Cascade Logic: Environment takes priority if explicit flag is provided
+					if useEnv {
+						val, exists = os.LookupEnv(fullKey)
+					}
+					if !exists {
+						val, exists = fileVars[fullKey]
+					}
 			}
+
+			// Hard Existence Safeguard: Empty strings pass cleanly, non-existent entries trigger defaults or failures
 			if !exists {
-				val, exists = fileVars[fullKey]
+				if hasDefault {
+					return defaultValue
+				}
+				missingVariables[fullKey] = true
+				return match
 			}
-		}
-
-		// Hard Existence Safeguard: Empty strings pass cleanly, non-existent entries trigger defaults or failures
-		if !exists {
-			if hasDefault {
-				return defaultValue
-			}
-			missingVariables[fullKey] = true
-			return match
-		}
-		return val
+			return val
 	})
 }
 
