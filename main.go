@@ -38,7 +38,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: gsub [OPTION]...\n")
 		fmt.Fprintf(os.Stderr, "Substitute {{PLACEHOLDERS}} safely using environment variables or configurations.\n\n")
 		fmt.Fprintf(os.Stderr, "Example: echo \"Hello {{USER}}\" | gsub -e\n")
-		fmt.Fprintf(os.Stderr, "         echo \"USER=alpine\" | gsub -t config.json.tmpl -f -\n\n")
+		fmt.Fprintf(os.Stderr, "         echo -e \"USER=alpine\nTIMESTAMP=$(date +%%s)\" | gsub -t config.json.tmpl -f -\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
 	}

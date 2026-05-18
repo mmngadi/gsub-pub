@@ -1,4 +1,3 @@
 gsub
 build/
-*.zip
-container-src/
+*.tmpl

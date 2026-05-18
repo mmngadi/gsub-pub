@@ -70,7 +70,7 @@ TIMESTAMP=1748365200
 Stream variables directly down standard input to render your target template:
 
 ```bash
-echo "USER=alpine\nTIMESTAMP=$(date +%s)" | gsub -t payload.json.tmpl -f -
+echo -e "USER=alpine\nTIMESTAMP=$(date +%s)" | gsub -t payload.json.tmpl -f -
 
 ```
 
